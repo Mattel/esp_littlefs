@@ -8,17 +8,13 @@
 
 #include "esp_log.h"
 #include "esp_spi_flash.h"
-#include "esp_image_format.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 #include <unistd.h>
 #include <dirent.h>
-#include <sys/errno.h>
 #include <sys/fcntl.h>
-#include <sys/lock.h>
 #include "esp32/rom/spi_flash.h"
-#include "esp_system.h"
 
 #include "esp_littlefs.h"
 #include "littlefs_api.h"
@@ -105,6 +101,31 @@ esp_err_t esp_littlefs_info(const char* partition_label, size_t *total_bytes, si
 
     if(total_bytes) *total_bytes = efs->cfg.block_size * efs->cfg.block_count; 
     if(used_bytes) *used_bytes = efs->cfg.block_size * lfs_fs_size(efs->fs);
+
+    return ESP_OK;
+}
+
+esp_err_t esp_littlefs_print_info(const char* partition_label){
+    int index;
+    esp_err_t err;
+    esp_littlefs_t *efs = NULL;
+
+    err = esp_littlefs_by_label(partition_label, &index);
+    if(err != ESP_OK) return false;
+    efs = _efs[index];
+
+    size_t total_bytes = efs->cfg.block_size * efs->cfg.block_count;
+    size_t used_bytes = efs->cfg.block_size * lfs_fs_size(efs->fs);
+    size_t free_bytes = total_bytes - used_bytes;
+
+    ESP_LOGI(TAG, "Filesystem\tSize\tUsed\tAvail\t\tUse%%\tMounted on");
+    ESP_LOGI(TAG, "%s\t\t%dM\t%d\t%d\t%d%%\t%s",
+             efs->partition->label,
+             efs->partition->size/1024/1024,  // MB
+             used_bytes,
+             free_bytes,
+             (int)used_bytes/total_bytes,
+             efs->base_path);
 
     return ESP_OK;
 }
@@ -352,7 +373,7 @@ static esp_err_t esp_littlefs_by_label(const char* label, int * index){
         }
     }
 
-    ESP_LOGD(TAG, "Existing filesystem \%s\" not found", label);
+    ESP_LOGD(TAG, "Existing filesystem \"%s\" not found", label);
     return ESP_ERR_NOT_FOUND;
 }
 

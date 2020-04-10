@@ -101,6 +101,19 @@ esp_err_t esp_littlefs_format(const char* partition_label);
 esp_err_t esp_littlefs_info(const char* partition_label, size_t *total_bytes, size_t *used_bytes);
 
 /**
+ * Print information about littlefs
+ *
+ * @details Format is similar to GNU df (disk free) run as `df -h`.
+ *
+ * @param partition_label           Optional, label of the partition to get info for.
+ *
+ * @return
+ *          - ESP_OK                  if success
+ *          - ESP_ERR_INVALID_STATE   if not mounted
+ */
+esp_err_t esp_littlefs_print_info(const char* partition_label);
+
+/**
  * @brief converts an enumerated lfs error into a string.
  * @param lfs_errno The enumerated littlefs error.
  */

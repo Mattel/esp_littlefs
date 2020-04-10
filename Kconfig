@@ -8,11 +8,11 @@ menu "LittleFS"
             Define maximum number of partitions that can be mounted.
 
     config LITTLEFS_PAGE_SIZE
-        int "SPIFFS logical page size"
+        int "Logical page size"
         default 256
         range 256 1024
         help
-            Logical page size of LITTLEFS partition, in bytes. Must be multiple
+            Logical page size of LittleFS partition, in bytes. Must be multiple
             of flash page size (which is usually 256 bytes).
             Larger page sizes reduce overhead when storing large files, and
             improve filesystem performance when reading large files.
@@ -53,7 +53,7 @@ menu "LittleFS"
             MUST be a multiple of Read AND Write size. MUST be a factor of 4096.
 
     config LITTLEFS_BLOCK_CYCLES
-        int "LittleFS wear-leveling block cycles"
+        int "Wear-leveling block cycles"
         default 512
         range -1 1024
         help
