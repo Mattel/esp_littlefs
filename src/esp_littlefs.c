@@ -130,6 +130,37 @@ esp_err_t esp_littlefs_print_info(const char* partition_label){
     return ESP_OK;
 }
 
+int esp_littlefs_get_handle(const char* partition_label) {
+    int index;
+    esp_err_t err;
+    err = esp_littlefs_by_label(partition_label, &index);
+    if(err != ESP_OK) return -1;
+    return index;
+}
+
+esp_err_t esp_littlefs_sync(int index) {
+    esp_err_t err;
+    esp_littlefs_t *efs = NULL;
+
+    if (index < 0 || index > CONFIG_LITTLEFS_MAX_PARTITIONS)
+        return ESP_ERR_INVALID_ARG;
+
+    efs = _efs[index];
+
+    if (efs->files == NULL)
+        return ESP_ERR_INVALID_STATE;
+
+    for (int i=0; i < efs->max_files; i++) {
+        if (efs->files[i].file.flags & LFS_F_OPENED) {
+            err = lfs_file_sync(efs->fs, &efs->files[i].file);
+            if (err != 0)
+                ESP_LOGE(TAG, "failed to sync file '%s'", efs->files[i].path);
+        }
+    }
+
+    return ESP_OK;
+}
+
 esp_err_t esp_vfs_littlefs_register(const esp_vfs_littlefs_conf_t * conf)
 {
     assert(conf->base_path);

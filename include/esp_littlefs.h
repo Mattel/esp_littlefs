@@ -114,6 +114,27 @@ esp_err_t esp_littlefs_info(const char* partition_label, size_t *total_bytes, si
 esp_err_t esp_littlefs_print_info(const char* partition_label);
 
 /**
+ * Get a littlefs handle
+ *
+ * @param partition_label  Label of the partition to format.
+ * @return  littlefs handle index, -1 on error.
+ */
+int esp_littlefs_get_handle(const char* partition_label);
+
+/**
+ * Sync open files on littlefs partition
+ *
+ * @details  Flushes writes to open files so as to write without closing a file.
+ *
+ * @param index           littlefs handle. @note index is used directly to avoid handle fetching per call.
+ *
+ * @return
+ *          - ESP_OK                  if success
+ *          - ESP_ERR_INVALID_STATE   if not mounted
+ */
+esp_err_t esp_littlefs_sync(int index);
+
+/**
  * @brief converts an enumerated lfs error into a string.
  * @param lfs_errno The enumerated littlefs error.
  */
